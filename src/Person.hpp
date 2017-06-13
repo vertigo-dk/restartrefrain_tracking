@@ -35,6 +35,7 @@ public:
     int framesSinceUpdate;
     ofColor color;
     Pointset points;
+    //vector<Trackgroup> trackgroups;
     
     void setCoord(ofVec2f coord);
     void updatePointset(int pointsetIndex, int pointsetCount);
@@ -43,7 +44,8 @@ public:
     void drawPointset();
     void drawDistanceLine();
     void setColor(int index);
-    //void updateDistances();
+    void resetTrackgroups();
+    //void addToTrackgroups(Trackgroup group);
 };
 
 

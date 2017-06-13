@@ -5,6 +5,7 @@
 #include "ofxOsc.h"
 #include <vector>
 #include "Person.hpp"
+#include <random>
 
 using namespace std;
 
@@ -14,20 +15,18 @@ using namespace std;
 #define FLOORWIDTH 400
 #define CIRCLERADIUS 0.75
 
+//A trackgroup is a collection of 3 tracks.
+//The 'tracks' array is randomized so that the tracks of the musicians are randomly assigned to a point on the floor
+//the indexes of 'tracks' corresponds to a pointset in a Person object, and the value is the track (ie. mikkel, s¿s or Jens)
+//There are 8 trackgroups in total. They are distributed to the different users.
 class Trackgroup {
-public:
-    Person* person;
-    int point0track;
-    int point1track;
-    int point2track;
+    public:
+        array<int, 3> tracks;
+        void setup();
     
-    vector<int> tracks;
+        void getTrackForClosestPoint();
     
-    Trackgroup() {};
-    
-    void setup(Person* person) {
-        this->person = person;
-    };
+        Trackgroup() {};
 };
 
 class ofApp : public ofBaseApp{
@@ -39,7 +38,8 @@ class ofApp : public ofBaseApp{
         void updatePerson(int id, ofVec2f pos);
         void deleteInactivePeople();
         void updatePointsAndDistances();
-
+        void updateTrackgroupTracks();
+    
 		void keyPressed(int key);
 		void keyReleased(int key);
 		void mouseMoved(int x, int y );
@@ -52,13 +52,9 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-        Trackgroup trackgroups[8];
+        //Trackgroup trackgroups[8];
         vector<Person> people;
-        Pointset points;
-        Pointset points2;
     
-        ofVec2f floorcoord;
-        float circleSize = 0.75;
     
         ofxOscReceiver oscReceiver;
         string msg_string;

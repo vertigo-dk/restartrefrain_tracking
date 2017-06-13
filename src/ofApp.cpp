@@ -1,5 +1,23 @@
 #include "ofApp.h"
 
+void Trackgroup::setup() {
+    for (int i=0; i<this->tracks.size(); i++) {
+        this->tracks[i] = i;  // fill the array in order
+    }
+    
+    random_device rd;
+    mt19937 g(rd());
+    
+    shuffle(this->tracks.begin(), this->tracks.end(), g);
+    
+    cout << "shuffle: ";
+    
+    for (auto& t:this->tracks) {
+        cout << t << " ";
+    }
+    cout << "\n";
+}
+
 //--------------------------------------------------------------
 void ofApp::setup(){
 
@@ -7,6 +25,11 @@ void ofApp::setup(){
     
     cout << "listening for osc messages on port " << PORT << "\n";
     oscReceiver.setup(PORT);
+    
+    //updateTrackGroups();
+    
+    Trackgroup tg = *new Trackgroup();
+    tg.setup();
 }
 
 //--------------------------------------------------------------
@@ -40,6 +63,11 @@ void ofApp::update(){
 }
 
 //--------------------------------------------------------------
+
+
+void updateTrackgroupTracks() {
+    
+}
 
 void ofApp::updatePointsAndDistances() {
     int pointsetCount = people.size();
@@ -101,7 +129,7 @@ void ofApp::draw(){
         
         person.drawPointset();
         
-        person.drawDistanceLine();
+        //person.drawDistanceLine();
     }
        
     if(msg_string != "") {

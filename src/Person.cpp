@@ -100,5 +100,5 @@ void Person::updateDistances() {
     
     this->points.setClosestPoint();
     
-    cout << "closest " << this->points.closestPoint.x << "," << this->points.closestPoint.y << "\n";
+    //cout << "closest " << this->points.closestPoint.x << "," << this->points.closestPoint.y << "\n";
 }
