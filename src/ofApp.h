@@ -4,44 +4,15 @@
 #include <math.h>
 #include "ofxOsc.h"
 #include <vector>
+#include "Person.hpp"
+
 using namespace std;
 
 // listen on port
 #define PORT 8112
-
-class Pointset : public ofBaseApp {
-public:
-    array<ofVec2f,3> values;
-    array<float,3> distances;
-    ofVec2f closestPoint;
-    
-    Pointset() {};
-    
-    void setup (int index, int count);
-    
-    void setDistances(ofVec2f p);
-    void setClosestPoint();
-    ofVec2f returnPoint(int index);
-};
-
-
-class Person {
-public:
-    int id;
-    ofVec2f coord;
-    int framesSinceUpdate;
-    ofColor color;
-    Pointset points;
-    
-    void setCoord(ofVec2f coord);
-    void updatePointset(int pointsetIndex, int pointsetCount);
-    void updateDistances();
-    void draw();
-    void drawPointset();
-    void drawDistanceLine();
-    void setColor(int index);
-    //void updateDistances();
-};
+#define FLOORHEIGHT 400
+#define FLOORWIDTH 400
+#define CIRCLERADIUS 0.75
 
 class Trackgroup {
 public:
