@@ -5,29 +5,18 @@
 #include "ofxOsc.h"
 #include <vector>
 #include "Person.hpp"
-#include <random>
+#include "Trackgroup.hpp"
 
 using namespace std;
 
 // listen on port
-#define PORT 8112
-#define FLOORHEIGHT 400
-#define FLOORWIDTH 400
-#define CIRCLERADIUS 0.75
+#define INPORT 8112
+#define OUTPORT 8113
+#define HOST "localhost"
 
-//A trackgroup is a collection of 3 tracks.
-//The 'tracks' array is randomized so that the tracks of the musicians are randomly assigned to a point on the floor
-//the indexes of 'tracks' corresponds to a pointset in a Person object, and the value is the track (ie. mikkel, s¿s or Jens)
-//There are 8 trackgroups in total. They are distributed to the different users.
-class Trackgroup {
-    public:
-        array<int, 3> tracks;
-        void setup();
-    
-        void getTrackForClosestPoint();
-    
-        Trackgroup() {};
-};
+#define FLOORHEIGHT 800
+#define FLOORWIDTH 800
+#define CIRCLERADIUS 0.75
 
 class ofApp : public ofBaseApp{
 	public:
@@ -39,6 +28,12 @@ class ofApp : public ofBaseApp{
         void deleteInactivePeople();
         void updatePointsAndDistances();
         void updateTrackgroupTracks();
+        void distributeTrackgroups();
+        void checkForNoPeople();
+        void setActiveTracks();
+        void sendOSCTrackgroupMessages();
+        void sendOtherOSCMessages();
+        void setFramesSinceUpdate();
     
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -52,10 +47,12 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-        //Trackgroup trackgroups[8];
+        array<Trackgroup,8> trackgroups;
         vector<Person> people;
-    
+        int appEnabled;
     
         ofxOscReceiver oscReceiver;
+        ofxOscSender oscSender;
+    
         string msg_string;
 };

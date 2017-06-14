@@ -46,13 +46,27 @@ void Pointset::setClosestPoint() {
             smallestIndex = i;
         }
     }
-    this->closestPoint = this->returnPoint(smallestIndex);
+    this->closestPoint = smallestIndex;
 }
 
 //--------------------------------------------------------------
 
-//pointsetIndex is the number of the person in the people vector.
-//It is also used to calculate the offset of the points in the pointset
+void Person::setActiveTracks() {
+    for (auto& tg:this->trackgroups) {
+        tg->setActiveTrack(this->points.closestPoint);
+    }
+}
+
+void Person::resetTrackgroups() {
+    this->trackgroups.clear();
+}
+
+void Person::addToTrackgroups(Trackgroup* tg) {
+    this->trackgroups.push_back(tg);
+}
+
+//pointsetIndex equals the index of the person in the people vector.
+//It is used to calculate the angle offset of the points in the pointset
 void Person::updatePointset(int pointsetIndex, int pointsetCount) {
     this->points = *new Pointset();
     this->points.setup(pointsetIndex, pointsetCount);
@@ -75,18 +89,21 @@ void Person::drawPointset() {
     
     //Draw closest point
     ofSetColor(255, 255, 255);
-    ofDrawCircle(this->points.closestPoint.x, this->points.closestPoint.y, 5);
+    
+    ofVec2f closestPoint = this->points.values[this->points.closestPoint];
+    
+    ofDrawCircle(closestPoint.x, closestPoint.y, 5);
 }
 
 void Person::drawDistanceLine() {
+    ofVec2f closestPoint = this->points.values[this->points.closestPoint];
     ofSetColor(this->color);
     
-    ofDrawLine(this->coord, this->points.closestPoint);
+    ofDrawLine(this->coord, closestPoint);
 }
 
 void Person::setColor(int index) {
     float hue = (index/8.0) * 255.0;
-    cout << " color " << hue << "\n";
     this->color = ofColor::fromHsb( hue, 255, 255 );
 }
 

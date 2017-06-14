@@ -10,13 +10,14 @@
 #define Person_hpp
 
 #include "ofMain.h"
+#include "Trackgroup.hpp"
 #include <stdio.h>
 
 class Pointset : public ofBaseApp {
 public:
     array<ofVec2f,3> values;
     array<float,3> distances;
-    ofVec2f closestPoint;
+    int closestPoint;
     
     Pointset() {};
     
@@ -35,7 +36,7 @@ public:
     int framesSinceUpdate;
     ofColor color;
     Pointset points;
-    //vector<Trackgroup> trackgroups;
+    vector<Trackgroup*> trackgroups;
     
     void setCoord(ofVec2f coord);
     void updatePointset(int pointsetIndex, int pointsetCount);
@@ -45,7 +46,8 @@ public:
     void drawDistanceLine();
     void setColor(int index);
     void resetTrackgroups();
-    //void addToTrackgroups(Trackgroup group);
+    void addToTrackgroups(Trackgroup* group);
+    void setActiveTracks();
 };
 
 

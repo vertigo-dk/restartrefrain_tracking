@@ -1,35 +1,17 @@
 #include "ofApp.h"
 
-void Trackgroup::setup() {
-    for (int i=0; i<this->tracks.size(); i++) {
-        this->tracks[i] = i;  // fill the array in order
-    }
-    
-    random_device rd;
-    mt19937 g(rd());
-    
-    shuffle(this->tracks.begin(), this->tracks.end(), g);
-    
-    cout << "shuffle: ";
-    
-    for (auto& t:this->tracks) {
-        cout << t << " ";
-    }
-    cout << "\n";
-}
-
 //--------------------------------------------------------------
 void ofApp::setup(){
 
     // Setup OSC
     
-    cout << "listening for osc messages on port " << PORT << "\n";
-    oscReceiver.setup(PORT);
+    cout << "listening for osc messages on port " << INPORT << "\n";
+    oscReceiver.setup(INPORT);
+    oscSender.setup(HOST, OUTPORT);
     
-    //updateTrackGroups();
+    updateTrackgroupTracks();
     
-    Trackgroup tg = *new Trackgroup();
-    tg.setup();
+    appEnabled = 0;
 }
 
 //--------------------------------------------------------------
@@ -51,22 +33,100 @@ void ofApp::update(){
             position.x = m.getArgAsFloat(2); // pos X
             position.y = m.getArgAsFloat(3); // pos Y
             
-            msg_string += "person " + ofToString(id) + " [" + ofToString(position.x) + ", " + ofToString(position.y) + "] \n";
+            msg_string += "OSC IN: person " + ofToString(id) + " [" + ofToString(position.x) + ", " + ofToString(position.y) + "] \n";
             
             updatePerson(id, position);
         }
     }
     
+    setFramesSinceUpdate();
+    
     deleteInactivePeople();
     
     updatePointsAndDistances();
+    
+    checkForNoPeople();
+    
+    distributeTrackgroups();
+    
+    setActiveTracks();
+
+    sendOSCTrackgroupMessages();
+    
+    sendOtherOSCMessages();
 }
 
 //--------------------------------------------------------------
 
+void ofApp::setFramesSinceUpdate() {
+    for (auto& person:people) {
+        person.framesSinceUpdate++;
+    }
+}
 
-void updateTrackgroupTracks() {
+void ofApp::sendOtherOSCMessages() {
+    ofxOscMessage m;
+    m.setAddress("/enabled");
+    m.addIntArg(appEnabled);
+    oscSender.sendMessage(m, false);
+}
+
+void ofApp::sendOSCTrackgroupMessages() {
+    if (appEnabled == 0) {
+        return;
+    }
+    for (int i = 0; i < trackgroups.size(); i++) {
+        Trackgroup tg = trackgroups[i];
+        cout << "active track: " << tg.activeTrack << "\n";
+        
+        ofxOscMessage m;
+        m.setAddress("/trackgroup/" + ofToString(i));
+        m.addIntArg(tg.activeTrack);
+        oscSender.sendMessage(m, false);
+    }
+}
+
+void ofApp::setActiveTracks() {
+    for (auto& person: people) {
+        person.setActiveTracks();
+    }
+}
+
+void ofApp::checkForNoPeople() {
+    if (people.size() == 0) {
+        updateTrackgroupTracks();
+        appEnabled = 0;
+    } else {
+        appEnabled = 1;
+    }
+}
+
+void ofApp::distributeTrackgroups() {
     
+    //cout << "size of people vector: " << people.size() << "\n";
+    
+    for (auto& person:people) {
+        person.resetTrackgroups();
+    }
+    
+    if (people.size() > 0) {
+        for (int i = 0; i < trackgroups.size(); i++) {
+            int remainder = i % people.size();
+            
+            people[remainder].addToTrackgroups(&trackgroups[i]);
+        }
+      
+        //for (int j = 0; j < people.size(); j++) {
+        //    cout << "Person " << j << " has " << people[j].trackgroups.size() << " trackgroups \n";
+        //}
+
+    }
+}
+
+void ofApp::updateTrackgroupTracks() {
+    for (auto& tg:trackgroups) {
+        tg.setup();
+    }
 }
 
 void ofApp::updatePointsAndDistances() {
@@ -84,7 +144,6 @@ void ofApp::deleteInactivePeople() {
 
     for (auto& person:people) {
         if (person.framesSinceUpdate < 10) {
-            //cout << "push" << "\n";
             newPeople.push_back(person);
         }
     }
@@ -97,7 +156,6 @@ void ofApp::updatePerson(int id, ofVec2f pos) {
     bool found = false;
     
     for (auto& person:people) {
-        person.framesSinceUpdate++;
         if (person.id == id) {
             person.setCoord(pos);
             person.framesSinceUpdate = 0;
@@ -139,7 +197,7 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    
 }
 
 //--------------------------------------------------------------
